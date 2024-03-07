@@ -44,3 +44,14 @@ Copy code
   "tax": 7500,
   "calculator": "Progressive"
 }
+
+## Authorization
+The application uses a dummy token for authorization, which is applied at the class level in the API controllers on the backend.
+
+## Dummy Token
+The dummy token is a placeholder token used for authentication purposes within the application. It is utilized to ensure that requests made to the API endpoints are authorized.
+
+## Implementation Details
+In the backend API controllers, the [Authorize] attribute is applied at the class level, requiring requests to include the dummy token for access to the API endpoints.
+
+Please ensure that requests made to the API include the dummy token in the appropriate headers for successful authorization.
