@@ -1,11 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using PaySpace.Calculator.Data.Models;
+using System.Reflection;
 
 namespace PaySpace.Calculator.Data
 {
     public class CalculatorContext(DbContextOptions<CalculatorContext> options) : DbContext(options)
     {
+        public DbSet<PostalCode> PostalCode { get; set; }
+        public DbSet<CalculatorSetting> CalculatorSetting { get; set; }
+        public DbSet<CalculatorHistory> CalculatorHistory { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PostalCode>()
@@ -13,6 +18,12 @@ namespace PaySpace.Calculator.Data
 
             modelBuilder.Entity<CalculatorSetting>()
                 .HasData(GetCalculatorSettings());
+
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+
+            base.OnModelCreating(modelBuilder);
+
         }
 
         private static IEnumerable<PostalCode> GetPostalCodes()
@@ -26,7 +37,7 @@ namespace PaySpace.Calculator.Data
             };
         }
 
-        internal static IEnumerable<CalculatorSetting> GetCalculatorSettings()
+        private static IEnumerable<CalculatorSetting> GetCalculatorSettings()
         {
             return new List<CalculatorSetting>()
             {

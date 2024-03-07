@@ -9,6 +9,11 @@ namespace PaySpace.Calculator.Services
 {
     internal sealed class CalculatorSettingsService(CalculatorContext context, IMemoryCache memoryCache) : ICalculatorSettingsService
     {
+        public Task<List<CalculatorSetting>> GetCalcullatorType(CalculatorType calculatorType)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<List<CalculatorSetting>> GetSettingsAsync(CalculatorType calculatorType)
         {
             return memoryCache.GetOrCreateAsync($"CalculatorSetting:{calculatorType}", entry =>

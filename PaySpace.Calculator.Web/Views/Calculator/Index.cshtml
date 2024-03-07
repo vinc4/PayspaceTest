@@ -1,0 +1,46 @@
+﻿@model CalculatorViewModel
+
+<h4>Tax Calculator</h4>
+
+<div class="row">
+    <div class="col-md-10">
+        <form asp-controller="Calculator" asp-action="Index" method="post">
+            <div class="form-group">
+                <label asp-for="Income" class="control-label">Enter Annual Salary</label><br />
+                <input asp-for="Income" />
+                <span asp-validation-for="Income" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PostalCode" class="control-label">Postal Code</label><br />
+                <select asp-for="PostalCode" id="postalCodes" class="form-control select-small">
+                    <option value="">Select Postal Code</option>
+                    @foreach (var code in Model.PostalCodes)
+                    {
+                        <option value="@code.Code">@code.Calculator</option>
+                    }
+                </select>
+                <span asp-validation-for="PostalCode" class="text-danger"></span>
+            </div>
+
+            @if (!string.IsNullOrEmpty(ViewData["Error"] as string))
+            {
+                <div class="text-danger">
+                    @ViewData["Error"]
+                </div>
+            }
+
+            <br />
+
+            <br />
+
+            <div>
+                <button type="submit" class="btn btn-primary">Calculate</button>
+            </div>
+        </form>
+    </div>
+</div>
+<style>
+    .select-small {
+        width: 250px; /* Adjust the width as needed */
+    }
+</style>

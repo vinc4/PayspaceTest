@@ -9,6 +9,8 @@ namespace PaySpace.Calculator.Web.Services
         public static void AddCalculatorHttpServices(this IServiceCollection services)
         {
             services.AddScoped<ICalculatorHttpService, CalculatorHttpService>();
+
+            services.AddMemoryCache();
         }
     }
 }

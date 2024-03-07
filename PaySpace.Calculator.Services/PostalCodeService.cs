@@ -7,11 +7,11 @@ using PaySpace.Calculator.Services.Abstractions;
 
 namespace PaySpace.Calculator.Services
 {
-    internal sealed class PostalCodeService(CalculatorContext context, IMemoryCache memoryCache) : IPostalCodeService
+    public class PostalCodeService(CalculatorContext context, IMemoryCache memoryCache) : IPostalCodeService
     {
         public Task<List<PostalCode>> GetPostalCodesAsync()
         {
-            return memoryCache.GetOrCreateAsync("PostalCodes", _ => context.Set<PostalCode>().AsNoTracking().ToListAsync())!;
+            return memoryCache.GetOrCreateAsync("PostalCode", _ => context.Set<PostalCode>().AsNoTracking().ToListAsync())!;
         }
 
         public async Task<CalculatorType?> CalculatorTypeAsync(string code)

@@ -1,9 +1,11 @@
 ﻿using MapsterMapper;
-
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using PaySpace.Calculator.API.Models;
+using PaySpace.Calculator.API.Security;
 using PaySpace.Calculator.Data.Models;
+using PaySpace.Calculator.Services;
 using PaySpace.Calculator.Services.Abstractions;
 using PaySpace.Calculator.Services.Exceptions;
 using PaySpace.Calculator.Services.Models;
@@ -12,44 +14,73 @@ namespace PaySpace.Calculator.API.Controllers
 {
     [ApiController]
     [Route("api/[Controller]")]
-    public sealed class CalculatorController(
-        ILogger<CalculatorController> logger,
-        IHistoryService historyService,
-        IMapper mapper)
-        : ControllerBase
+    //[Authorize(DummyTokenAuthorizationPolicy.PolicyName)]
+    public  class CalculatorController: ControllerBase
     {
-        [HttpPost("calculate-tax")]
+        private readonly ILogger _logger;
+        private readonly IHistoryService _historyService;
+        private readonly ITaxCalculationService _taxCalculationService;
+        private readonly IMapper _mapper;
+        private readonly IPostalCodeService _postalCodeService;
+        public CalculatorController(
+               ILogger<CalculatorController> logger,
+               IHistoryService historyService,
+               IPostalCodeService postalCodeService,
+               ITaxCalculationService taxCalculationService,
+               IMapper mapper)
+        { 
+            _historyService = historyService;
+            _mapper = mapper;
+            _logger = logger;
+            _taxCalculationService = taxCalculationService;
+            _postalCodeService = postalCodeService;
+
+        }
+
+        [HttpPost("calculateTax")]
         public async Task<ActionResult<CalculateResult>> Calculate(CalculateRequest request)
         {
             try
             {
+                var taxCalculation = await _taxCalculationService.CalculateTaxAsync(request.Income, request.PostalCode);
 
-                var result = 0; 
-
-                await historyService.AddAsync(new CalculatorHistory
+                // Add calculation history
+                await _historyService.AddAsync(new CalculatorHistory
                 {
-                    Tax = result.Tax,
-                    Calculator = result.Calculator,
-                    PostalCode = request.PostalCode ?? "Unknown",
+                    Tax = taxCalculation.Tax,
+                    Calculator = taxCalculation.Calculator,
+                    PostalCode = request.PostalCode,
                     Income = request.Income
                 });
 
-                return this.Ok(mapper.Map<CalculateResultDto>(result));
+                // Map the result to a DTO and return
+                var resultDto = _mapper.Map<CalculateResultDto>(taxCalculation);
+                return Ok(resultDto);
+              
             }
             catch (CalculatorException e)
             {
-                logger.LogError(e, e.Message);
-
-                return this.BadRequest(e.Message);
+                // Log the exception and return a BadRequest response
+                _logger.LogError(e, e.Message);
+                return BadRequest(e.Message);
             }
         }
 
         [HttpGet("history")]
         public async Task<ActionResult<List<CalculatorHistory>>> History()
         {
-            var history = await historyService.GetHistoryAsync();
+            var history = await _historyService.GetHistoryAsync();
 
-            return this.Ok(mapper.Map<List<CalculatorHistoryDto>>(history));
+            return this.Ok(_mapper.Map<List<CalculatorHistoryDto>>(history));
+        }
+
+
+        [HttpGet("posta1code")]
+        public async Task<ActionResult<List<PostalCode>>> PostalCode()
+        {
+            var postalCodes = await _postalCodeService.GetPostalCodesAsync();
+
+            return this.Ok(_mapper.Map<List<PostalCodeDto>>(postalCodes));
         }
     }
 }
